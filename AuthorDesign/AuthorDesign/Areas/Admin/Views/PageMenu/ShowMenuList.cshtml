@@ -1,0 +1,34 @@
+﻿@{
+    Layout = null;
+}
+@model List<AuthorDesign.Model.PageMenu>
+
+@foreach (var item in Model.Where(m => m.PId == ViewBag.Pid)) {
+    int layer = ViewBag.Layer;
+    <tr layer="@layer">
+        <th>
+            @Html.Raw(AuthorDesign.Web.App_Start.Common.PublicFunction.GetHtmlSpan(layer))
+            <span class="close" attr-id="close" onclick="categoryTree(this,@layer)"></span>
+            @item.Name
+        </th>
+        <td><i class="@item.Ico bigger-120"></td>
+        <td>@if(item.IsShow == 1){
+            <i class="icon-ok green bigger-120"></i>
+            }else{
+            <i class="icon-remove red bigger-120"></i>
+            }</td>
+        <td>@item.OrderNum</td>
+        <td>
+            <a href="javascript:UpdateObj('@item.Id')" class="editOperate LookRole" title="编辑"><i class="icon-pencil green bigger-120"></i></a>
+            <a href="javascript:UpdateAction('@item.Id')" class="editOperate LookActionRole" title="动作编辑"><i class="icon-user green bigger-120"></i></a>
+            <a href="javascript:DeleteObj('@item.Id')" class="deleteOperate DeleteRole" title="删除"><i class="icon-trash red bigger-120"></i></a>
+
+        </td>
+    </tr>
+    var childMenu = Model.Where(m => m.PId == item.Id);
+    layer=layer+1;
+    if (childMenu.Count() > 0) {
+        @Html.Action("ShowMenuList", "PageMenu", new { listPage = Model, pid = item.Id, layer = layer })
+    }
+    layer = layer - 1;
+}

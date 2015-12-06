@@ -1,0 +1,53 @@
+﻿@{
+    IEnumerable<AuthorDesign.Model.PageMenuAction> pageMenuList = AuthorDesign.Web.App_Start.Common.EnterRepository.GetRepositoryEnter().GetPageMenuRepository.GetPageMenuList();
+
+
+    List<AuthorDesign.Model.PageAction> actionList = AuthorDesign.Web.App_Start.Common.AdminMenuHelper.LoadActionCodeList();
+}
+
+<div class="main-content col-xs-8" style="margin-top: 70px; margin-left: 15%;">
+    <div class="page-content">
+        <div class="row">
+
+            <div class="page-header">
+                <h1>
+                    角色页面管理
+                    <small>
+                        <i class="icon-double-angle-right"></i>
+                        <span id="ShowText">角色页面编辑</span>
+                    </small>
+                </h1>
+            </div>
+            <div class="col-lg-10 col-lg-offset-2">
+                <form id="EditRoleActionForm" class="form-horizontal">
+                    @Html.Hidden("ActionEditId")
+                    <div class="com">
+                        @RenderPage("/Areas/Admin/Views/Role/DisplayTemplates/RoleActionTemp.cshtml", new { ActionList = actionList, PageMenuList = pageMenuList, Pid = 0 })
+                    </div>
+
+                    <div>
+                        <input type="checkbox" onclick="selectAll(this)"> 全选
+                    </div>
+
+                    <div class="space-4"></div>
+
+                    <div class="form-group">
+                        <div class="col-lg-9 col-lg-offset-3">
+                            <button class="btn btn-primary UpdateActionRole" type="submit">
+                                <i class="icon-ok bigger-110"></i>
+                                保存
+                            </button>
+                            <button class="btn" type="reset" data-dismiss="modal">
+                                <i class="icon-undo bigger-110"></i>
+                                取消
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- /.row -->
+        </div>
+    </div>
+    <!-- /.page-content -->
+</div>

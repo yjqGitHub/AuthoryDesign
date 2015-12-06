@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>权限管理后台-@ViewBag.Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- basic styles -->
+
+    <link href="/Content/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/Content/assets/css/font-awesome.min.css" />
+
+    <!--[if IE 7]>
+      <link rel="stylesheet" href="/Content/assets/css/font-awesome-ie7.min.css" />
+    <![endif]-->
+    <!-- page specific plugin styles -->
+    @RenderSection("Header", false)
+    <!-- ace styles -->
+
+    <link rel="stylesheet" href="/Content/assets/css/ace.min.css" />
+    <link rel="stylesheet" href="/Content/assets/css/ace-rtl.min.css" />
+    <link rel="stylesheet" href="/Content/assets/css/ace-skins.min.css" />
+
+    <!--[if lte IE 8]>
+      <link rel="stylesheet" href="/Content/assets/css/ace-ie.min.css" />
+    <![endif]-->
+    <!-- inline styles related to this page -->
+    <!-- ace settings handler -->
+    <script src="/Content/assets/js/ace-extra.min.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="/Content/assets/js/html5shiv.js"></script>
+    <script src="/Content/assets/js/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+        .field-validation-error {
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    @RenderPage("/Areas/Admin/Views/Shared/_LayoutHead.cshtml")
+    <div class="main-container" id="main-container">
+        <script type="text/javascript">
+            try { ace.settings.check('main-container', 'fixed') } catch (e) { }
+        </script>
+
+        <div class="main-container-inner">
+            @RenderPage("/Areas/Admin/Views/Shared/_LayoutLeftMenu.cshtml")
+            @RenderBody()
+        </div><!-- /.main-container-inner -->
+
+        <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+            <i class="icon-double-angle-up icon-only bigger-110"></i>
+        </a>
+    </div><!-- /.main-container -->
+
+    <!-- basic scripts -->
+    <!--[if !IE]> -->
+    <!--[if !IE]> -->
+
+    <script type="text/javascript">
+        window.jQuery || document.write("<script src='/Content/assets/js/jquery-2.0.3.min.js'>" + "<" + "/script>");
+    </script>
+
+    <!-- <![endif]-->
+    <!--[if IE]>
+    <script type="text/javascript">
+     window.jQuery || document.write("<script src='/Content/assets/js/jquery-1.10.2.min.js'>"+"<"+"/script>");
+    </script>
+    <![endif]-->
+
+    <script type="text/javascript">
+        if ("ontouchend" in document) document.write("<script src='/Content/assets/js/jquery.mobile.custom.min.js'>" + "<" + "/script>");
+    </script>
+    <script src="/Content/assets/js/bootstrap.min.js"></script>
+    <script src="/Content/assets/js/typeahead-bs2.min.js"></script>
+
+    <!-- page specific plugin scripts -->
+    @RenderSection("Script", false)
+    <!-- ace scripts -->
+
+    <script src="/Content/assets/js/ace-elements.min.js"></script>
+    <script src="/Content/assets/js/ace.min.js"></script>
+    <script type="text/javascript">
+        function GetDateYMR(dateFirst) {
+            if (dateFirst) {
+                return new Date(Number(dateFirst.replace(/\D/g, ''))).getFullYear() + '-' + (new Date(Number(dateFirst.replace(/\D/g, ''))).getMonth() + 1 < 10 ? '0' + (new Date(Number(dateFirst.replace(/\D/g, ''))).getMonth() + 1) : new Date(Number(dateFirst.replace(/\D/g, ''))).getMonth() + 1) + '-' + (new Date(Number(dateFirst.replace(/\D/g, ''))).getDate() < 10 ? '0' + (new Date(Number(dateFirst.replace(/\D/g, ''))).getDate() + 1) : new Date(Number(dateFirst.replace(/\D/g, ''))).getDate() + 1)
+            }
+            else {
+                return "";
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        var NName = window.location.pathname.split('/');
+        if (NName.length >= 3) {
+            var UrlFlag = true;
+            $(".submenu li a").each(function () {
+                if ($(this).attr("href").toUpperCase().indexOf(NName[3].toUpperCase()) > -1) {
+                    try {
+                        if ($(this).attr("href").split('/')[3].toUpperCase() == NName[3].toUpperCase()) {
+                            UrlFlag = false;
+                            $(this).parent().addClass("active");
+                            $(this).parent().parent().parent().addClass("active open");
+                        }
+                    } catch (ef) { }
+                }
+            });
+            if (UrlFlag) {
+                $(".submenu li a").each(function () {
+                    if ($(this).attr("href").toUpperCase().indexOf(NName[2].toUpperCase()) > -1) {
+                        try {
+                            if ($(this).attr("href").split('/')[2].toUpperCase() == NName[2].toUpperCase()) {
+                                UrlFlag = false;
+                                //$(this).parent().addClass("active");
+                                $(this).parent().parent().parent().addClass("active open");
+                            }
+                        } catch (ef) { }
+                    }
+                });
+            }
+        }
+    </script>
+
+    @{
+        string operationActionList = ViewBag.CanOperationActionList??"";
+    }
+    <script type="text/javascript">
+        window.onload = OperationEdit;
+        function OperationEdit() {
+            var operationActionList = "@operationActionList".replace(/&quot;/g, '\"');
+            if (operationActionList.trim() != "") {
+                var operationActionListResult = eval('(' + operationActionList + ')');
+                for (var i = 0; i < operationActionListResult.length; i++) {
+                    if (operationActionListResult[i].IsChecked == 0) {
+                        $("." + operationActionListResult[i].ActionName).remove();
+                    }
+                }
+            }
+        }
+</script>
+</body>
+</html>

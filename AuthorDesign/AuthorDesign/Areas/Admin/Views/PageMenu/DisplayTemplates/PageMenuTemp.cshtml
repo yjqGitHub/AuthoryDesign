@@ -1,0 +1,90 @@
+﻿@model AuthorDesign.Web.Areas.Admin.Models.PageMenuModel
+
+<div class="main-content col-xs-8" style="margin-top: 70px; margin-left: 15%;">
+    <div class="page-content">
+        <div class="row">
+            <section>
+                <div class="page-header">
+                    <h1>
+                        页面管理
+                        <small>
+                            <i class="icon-double-angle-right"></i>
+                            <span id="ShowText">页面编辑</span>
+                        </small>
+                    </h1>
+                </div>
+                <div class="col-lg-10 col-lg-offset-2">
+                    <form id="AddRoleForm" class="form-horizontal">
+                        <fieldset>
+                            @Html.HiddenFor(m => m.Id)
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">页面名称<span style="color:red;">*</span>:</label>
+                                <div class="col-lg-7" style="float:left;">
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.Name)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">所属页面:</label>
+                                <div class="col-lg-7" id="PidSelect">
+                                    <select class="chosen-select tag-input-style" id="PId" name="PId" data-placeholder="请选择所属页面">
+                                        <option value="0">最顶级页面</option>
+                                        @Html.Action("ShowMenuSelectList", "PageMenu", new { listPage = PageData["ItemList"], pid = 0, layer = 0 })
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">页面路径:</label>
+                                <div class="col-lg-7">
+                                    @Html.TextBoxFor(m => m.PageUrl, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.PageUrl)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">排序:</label>
+                                <div class="col-lg-7">
+                                    @Html.TextBoxFor(m => m.OrderNum, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.OrderNum)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">页面图标:</label>
+                                <div class="col-lg-7">
+                                    @Html.TextBoxFor(m => m.Ico, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.Ico)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">是否显示</label>
+                                <div class="col-lg-7">
+                                    <label>
+                                        <input name="IsShow" type="radio" class="ace" value="0" checked="checked" />
+                                        <span class="lbl">不显示</span>
+                                    </label>
+                                    <label>
+                                        <input name="IsShow" type="radio" class="ace" value="1" />
+                                        <span class="lbl">显示</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <div class="col-lg-9 col-lg-offset-3">
+                                <button class="btn btn-primary UpdateRole" type="submit">
+                                    <i class="icon-ok bigger-110"></i>
+                                    保存
+                                </button>
+                                <button class="btn" type="reset" data-dismiss="modal">
+                                    <i class="icon-undo bigger-110"></i>
+                                    取消
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            <!-- /.row -->
+        </div>
+    </div>
+    <!-- /.page-content -->
+</div>

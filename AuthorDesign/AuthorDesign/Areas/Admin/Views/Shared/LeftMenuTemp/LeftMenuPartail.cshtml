@@ -1,0 +1,28 @@
+﻿@{
+    Layout = null;
+    List<AuthorDesign.Model.PageMenu> pageMuneList = PageData["PageMuneList"] as List<AuthorDesign.Model.PageMenu>;
+    int Pid = (int)PageData["Pid"];
+    DateTime time1 = DateTime.Now;
+    var start = new DateTime(1970, 1, 1, 0, 0, 0, time1.Kind);
+    long span= Convert.ToInt64((time1 - start).TotalSeconds);
+}
+
+@foreach (var item in pageMuneList.Where(m => m.PId == Pid)) {
+    var childrenMenuList = pageMuneList.Where(m => m.PId == item.Id);
+    <li>
+        <a @if (string.IsNullOrEmpty(item.PageUrl)) { <text> href="javascript:void(0)" </text>  } else { <text> href="/Admin/@item.PageUrl?timespan=@span" </text> } 
+           @if (childrenMenuList.Count() > 0) { <text> class="dropdown-toggle" </text>   }>
+            <i class="@item.Ico"></i>
+            <span class="menu-text"> @item.Name </span>
+            @if (childrenMenuList != null && childrenMenuList.Count() > 0) {
+                <b class="arrow icon-angle-down"></b>
+            }
+        </a>
+        @if (childrenMenuList != null && childrenMenuList.Count() > 0) {
+            <ul class="submenu">
+                @RenderPage("/Areas/Admin/Views/Shared/LeftMenuTemp/LeftMenuPartail.cshtml", new { PageMuneList = pageMuneList, Pid = item.Id })
+            </ul>
+        }
+    </li>
+
+}

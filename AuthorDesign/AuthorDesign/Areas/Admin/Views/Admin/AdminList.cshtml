@@ -1,0 +1,675 @@
+﻿@section Header{
+    <style type="text/css">
+        /*加载动态图片*/
+        .dataTables_processing {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 40px;
+            margin-left: -50%;
+            margin-top: -25px;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            /*background-color: white;*/
+        }
+
+        .competence {
+            height: auto;
+            overflow: hidden;
+        }
+
+        .competence-t {
+            height: 40px;
+            line-height: 40px;
+            border-bottom: #ccc dashed 1px;
+        }
+
+        .competence-b {
+            height: auto;
+            overflow: hidden;
+            border: #ccc dashed 1px;
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+}
+
+<div class="main-content">
+    <div class="breadcrumbs" id="breadcrumbs">
+        <script type="text/javascript">
+            try { ace.settings.check('breadcrumbs', 'fixed') } catch (e) { }
+        </script>
+
+        <ul class="breadcrumb">
+            <li>
+                <i class="icon-home home-icon"></i>
+                <a href="/Admin/Home">首页</a>
+            </li>
+            <li>
+                <a href="/Admin/Admin/AdminList">管理员列表</a>
+            </li>
+            <li class="active">管理员列表</li>
+        </ul><!-- .breadcrumb -->
+        <!-- #nav-search -->
+    </div>
+    <div class="page-content">
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-header">
+                            管理员列表查看
+                        </div>
+                        <div class="hidden" id="hidden_filter">
+                            @* 把需要搜索的条件放到hidden里面，在table格式化完成的时候直接调用$.html()赋值，免去了在js拼接标签的麻烦 *@
+                            <div style="float:left;">
+                                <label class="AddRole">
+                                    <a id="AddNewRole" class="btn btn-xs btn-primary" data-toggle="modal" href="" onclick="showAddNewAdmin()" title="添加新管理员">
+                                        <i class="icon-plus-sign bigger-130"></i>
+                                        添加新管理员
+                                    </a>
+                                </label>
+                                <label class="SearchRole">
+                                    <label>手机号码:</label>
+                                    <label>
+                                        @Html.TextBox("Mobile_Search", "", new { @class = "form-control input-small", style = "width:150px", placeholder = "请输入手机号码" })
+                                    </label>
+                                    <label>选择角色: </label>
+                                    <label>
+                                        <select id="Authory_Search">
+                                            @foreach (var item in ViewBag.RoleSelectItem) {
+                                                <option value="@item.Value">@item.Text</option>
+                                            }
+                                        </select>
+                                    </label>
+                                    <label>
+                                        <a href="javascript:Search();" class="btn btn-xs btn-success">
+                                            <i class="icon-search bigger-130"></i>
+                                            搜索
+                                        </a>
+                                        <i class="fa fa-search"></i>
+                                    </label>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="table-responsive dataTables_wrapper">
+                            <table id="sample-table-2" class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="center sorting_disabled" role="columnheader" rowspan="1" colspan="1" aria-label="" style="width: 58px;">
+                                            <label>
+                                                <input type="checkbox" class="ace">
+                                                <span class="lbl"></span>
+                                            </label>
+                                        </th>
+                                        <th>手机号码</th>
+                                        <th>用户名</th>
+                                        <th>邮箱</th>
+                                        <th>角色名称</th>
+                                        <th>上次登录时间</th>
+                                        <th>是否可登陆</th>
+                                        <th>创建时间</th>
+                                        <th style="width: 120px;">
+                                            操作
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- PAGE CONTENT ENDS -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.page-content -->
+</div>
+<div class="modal fade" id="ShowAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    @RenderPage("/Areas/Admin/Views/Admin/DisplayTemplates/AdminTemp.cshtml", new { SelectItem = ViewBag.RoleSelectItem })
+</div>
+<div class="modal fade" id="ShowActionEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    @Html.Partial("DisplayTemplates/AdminActionList")
+</div>
+@section script{
+    <script src="/Content/assets/js/jquery.dataTables.min.js"></script>
+    <script src="/Content/assets/js/jquery.dataTables.bootstrap.js"></script>
+    <script src="/Content/assets/js/bootbox.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+    <script type="text/javascript">
+        var isSearch = false;
+        $(function () {
+            var objTable = $("#sample-table-2").dataTable({
+                fnDrawCallback: function () {
+                    OperationEdit();
+                },
+                aoColumns: [
+                    { "sClass": "center", "mDataProp": "Id", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "Mobile", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "AdminName", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "Email", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "Name", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "LastLoginTime", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "IsLogin", "bSortable": false },
+                    { "mDataProp": "CreateTime", "sClass": "center", "bSortable": true, "asSorting": ["asc", "desc"] },
+                    {
+                        "sClass": "center",
+                        "mDataProp": "Id",
+                        "bSortable": false
+                    }
+                ],
+                "bServerSide": true,//分页，取数据等等的都放到服务端去
+                "bProcessing": true,//载入数据的时候是否显示“载入中”
+                "aLengthMenu": [20, 30, 50, 100],
+                "bLengthChange": true, //改变每页显示数据数量
+                //"bFilter": false, //过滤功能
+                "iDisplayStart": 0,
+                "iDisplayLength": 20,//首次加载的数据条数
+                "bStorable": true,//排序操作在服务端进行，所以可以关了。
+                "sAjaxSource": "/Admin/Admin/AdminList",
+                "fnServerParams": function (aoData, bStorable) {
+                },
+                /*如果加上下面这段内容，则使用post方式传递数据*/
+                "fnServerData": function (sSource, aoData, fnCallback, bStorable) {
+                    var paramList = {
+                        "sEcho": 0,
+                        "iDisplayLength": 0,
+                        "iDisplayStart": 0,
+                        "isDesc": bStorable.aaSorting[0][1] == "desc" ? true : false,
+                        "RoleId": isSearch == true ? $("#Authory_Search").val() : -1,
+                        "Mobile": isSearch == true ? $("#Mobile_Search").val() : ""
+                    };
+                    if (bStorable.aaSorting[0][0] == 0) {
+                        paramList.isDesc = true;
+                    }
+                    for (var i = 0; i < aoData.length; i++) {
+                        if (aoData[i].name == "iDisplayStart") {
+                            paramList.iDisplayStart = aoData[i].value;
+                        } else if (aoData[i].name == "iDisplayLength") {
+                            paramList.iDisplayLength = aoData[i].value;
+                        } else if (aoData[i].name == "sEcho") {
+                            paramList.sEcho = aoData[i].value;
+                        }
+                    }
+                    $.ajax({
+                        "dataType": 'json',
+                        "type": "POST",
+                        "url": sSource,
+                        "data": paramList,
+                        "success": function (resp) {
+                            fnCallback(resp); //服务器端返回的对象的returnObject部分是要求的格式
+                        }
+                    });
+                },
+                "oLanguage": {
+                    "sSearch": "搜索",
+                    "sLengthMenu": "每页显示 _MENU_ 条记录",
+                    "sZeroRecords": "抱歉， 没有找到",
+                    "sInfo": "从 _START_ 到 _END_ 共 _TOTAL_ 条数据",
+                    "sInfoEmpty": "没有数据",
+                    "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                    "oPaginate": {
+                        "sFirst": "首页",
+                        "sPrevious": "前一页",
+                        "sNext": "后一页",
+                        "sLast": "尾页"
+                    },
+                    "sZeroRecords": "没有检索到数据",
+                    "sProcessing": "<img src='/Content/assets/images/loading.gif' />"
+                },
+                "fnRowCallback": function (nRow, aData, iDisplayIndex) {  /* 用来改写指定行的样式 */
+                    $('td:eq(0)', nRow).html("<label><input type=\"checkbox\" class=\"ace\" value=\"" + aData.Id + "\"><span class=\"lbl\"></span></label>");
+                    $('td:eq(5)', nRow).html(GetDateYMR(aData.LastLoginTime));
+                    $('td:eq(7)', nRow).html(GetDateYMR(aData.CreateTime));
+                    var html = "<div class=\"visible-md visible-lg hidden-sm hidden-xs action-buttons\">";
+                    html += "<a class=\"green LookRole\" href=\"javascript:UpdateObj('" + aData.Id + "')\" title=\"编辑\"><i class=\"icon-pencil bigger-130\"></i></a>";//编辑
+                    if (aData.IsLogin == 1) {
+                        $('td:eq(6)', nRow).html("<i class=\"icon-ok green bigger-120\"></i>");
+                        html += "<a class=\"red UpdateRole\" href=\"javascript:CanLogin('" + aData.Id + "',0)\" title=\"不能登录\"><i class=\"icon-remove bigger-130\"></i></a>";//删除
+                    }
+                    else {
+                        $('td:eq(6)', nRow).html("<i class=\"icon-remove red bigger-120\"></i>");
+                        html += "<a class=\"green UpdateRole\" href=\"javascript:CanLogin('" + aData.Id + "',1)\" title=\"可登陆\"><i class=\"icon-ok bigger-130\"></i></a>";
+                    }
+                    html += "<a class=\"red UpdateRole\" href=\"javascript:ShowPrompt('" + aData.Id + "')\" title=\"重置密码\"><i class=\"icon-refresh bigger-130\"></i></a>";
+                    html += "<a href=\"javascript:UpdateAction(" + aData.Id + ")\" class=\"editOperate LookActionRole\" title=\"动作编辑\"><i class=\"icon-user green bigger-120\"></i></a>";
+                    html += "<a class=\"red DeleteRole\" href=\"javascript:DeleteObj('" + aData.Id + "')\" title=\"删除管理员\"><i class=\"icon-trash bigger-130\"></i></a>";//删除
+                    html += "</div>";
+                    $('td:eq(8)', nRow).html(html);
+                    return nRow;
+                }
+            });
+            //下面的代码主要是将下拉框的位置已到右边去
+            $("#sample-table-2_length").parents().first().removeClass("col-sm-6").addClass("col-sm-3");
+            $("#sample-table-2_length").parents().first().css("float", "right");
+            $("#sample-table-2_filter").parents().first().removeClass("col-sm-6").addClass("col-sm-8");
+            $("#sample-table-2_filter").parents().first().css("float", "left");
+            $("#sample-table-2_length").css("float", "right");
+            $("#sample-table-2_filter").html($("#hidden_filter").html());
+            $("#hidden_filter").remove();
+        })
+        //搜索
+        function Search() {
+            isSearch = true;
+            $("#sample-table-2").dataTable().fnDraw();//点搜索重新绘制table。
+        }
+        function showAddNewAdmin() {
+            $("#Id").val(0);
+            $('#ShowAdd').modal();
+        }
+        function UpdateObj(id) {
+            $.ajax({
+                type: "post",
+                data: { id: id },
+                url: "/Admin/Admin/GetAdminInfo",
+                success: function (result) {
+                    if (result.state == "success") {
+                        $("#Id").val(id);
+                        $("#Mobile").val(result.result.Mobile);
+                        $("#AuthoryId option[value=" + result.result.AuthoryId + "]").attr("selected", "selected");
+                        if (result.result.IsLogin == 1) {
+                            $("input[name='IsLogin']").eq(0).removeAttr("checked");
+                            $("input[name='IsLogin']").eq(1).attr("checked", "checked");
+                        }
+                        else {
+                            $("input[name='IsLogin']").eq(0).attr("checked", "checked");
+                            $("input[name='IsLogin']").eq(1).removeAttr("checked");
+                        }
+                        $('#ShowAdd').modal();
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+        $("#AddRoleForm").submit(function () {
+            if ($("#AddRoleForm").valid()) {
+                var url = "/Admin/Admin/AddAdmin";
+                if ($("#Id").val() > 0) {
+                    url = "/Admin/Admin/UpdateAdmin";
+                }
+                $.ajax({
+                    type: "post",
+                    data: $("#AddRoleForm").serialize(),
+                    url: url,
+                    success: function (result) {
+                        if (result.state == "success") {
+                            $('#ShowAdd').modal('hide');//关闭模态框
+                            document.getElementById("AddRoleForm").reset();//清空表单
+                            bootbox.alert({
+                                buttons: {
+                                    ok: {
+                                        label: '我知道了',
+                                        className: 'btn btn-primary'
+                                    }
+                                }, callback: function () {
+                                    $("#sample-table-2").dataTable().fnDraw();//点搜索重新绘制table。
+                                },
+                                message: result.message
+                            });
+                        } else {
+                            bootbox.alert({
+                                buttons: {
+                                    ok: {
+                                        label: '我知道了',
+                                        className: 'btn btn-primary'
+                                    }
+                                }, callback: function () {
+                                },
+                                message: result.message
+                            });
+                        }
+                    }
+                })
+                return false;
+            }
+            else {
+                return false;
+            }
+        })
+        function CanLogin(id, state) {
+            bootbox.confirm({
+                buttons: {
+                    confirm: {
+                        label: '确定',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: '取消',
+                        className: 'btn-default'
+                    }
+                },
+                message: state == 0 ? "确定禁止该管理员登录吗" : "确定恢复该管理员登录吗",
+                callback: function (result) {
+                    if (result) {
+                        UpdateState(id, state)
+                    }
+                }
+            });
+        }
+        function UpdateState(id, state) {
+            $.ajax({
+                type: "post",
+                data: { id: id, state: state },
+                url: "/Admin/Admin/UpdateState",
+                success: function (result) {
+                    if (result.state == "success") {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                                $("#sample-table-2").dataTable().fnDraw();//点搜索重新绘制table。
+                            },
+                            message: result.message
+                        });
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+
+        function DeleteObj(id) {
+            bootbox.confirm({
+                buttons: {
+                    confirm: {
+                        label: '确定',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: '取消',
+                        className: 'btn-default'
+                    }
+                },
+                message: "确定要彻底删除该角色吗？",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "post",
+                            data: { id: id },
+                            url: "/Admin/Admin/DeleteAdmin",
+                            success: function (result) {
+                                if (result.state == "success") {
+                                    bootbox.alert({
+                                        buttons: {
+                                            ok: {
+                                                label: '我知道了',
+                                                className: 'btn btn-primary'
+                                            }
+                                        }, callback: function () {
+                                            $("#sample-table-2").dataTable().fnDraw();//点搜索重新绘制table。
+                                        },
+                                        message: result.message
+                                    });
+                                } else {
+                                    bootbox.alert({
+                                        buttons: {
+                                            ok: {
+                                                label: '我知道了',
+                                                className: 'btn btn-primary'
+                                            }
+                                        }, callback: function () {
+                                        },
+                                        message: result.message
+                                    });
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        }
+        function RestPassword(id, password) {
+            $.ajax({
+                type: "post",
+                data: { id: id, newPassword: password },
+                url: "/Admin/Admin/RestPassword",
+                success: function (result) {
+                    if (result.state == "success") {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                                $("#sample-table-2").dataTable().fnDraw();//点搜索重新绘制table。
+                            },
+                            message: result.message
+                        });
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+        function ShowPrompt(id) {
+            bootbox.prompt("请输入新的密码", function (result) {
+                if (result == null) {
+
+                }
+                else if (result == "" || result.length < 6) {
+                    bootbox.alert({
+                        buttons: {
+                            ok: {
+                                label: '我知道了',
+                                className: 'btn btn-primary'
+                            }
+                        }, callback: function () {
+                            ShowPrompt(id);
+                        },
+                        message: '密码长度不能少于6位'
+                    });
+
+                } else {
+                    RestPassword(id, result)
+                }
+            });
+        }
+
+        //角色与页面按钮编辑
+        function UpdateAction(id) {
+            $("#ActionEditId").val(id);
+            $.ajax({
+                type: "post",
+                url: "/Admin/Admin/AdminPageActionDesc",
+                data: { id: id },
+                success: function (result) {
+                    var res = result.adminPageList;
+                    for (var i = 0; i < res.length; i++) {
+                        $(".competence-t").find("input[type=checkbox]").each(function () {
+                            if ($(this).val() == res[i].PageId) {
+                                if (res[i].IsShow == 1) {
+                                    this.checked = true;
+                                } else {
+                                    this.checked = false;
+                                }
+                                var actionList = eval('(' + res[i].ActionList + ')')
+                                $(this).parent().next().find("input[type=checkbox]").each(function () {
+                                    for (var j = 0; j < actionList.length; j++) {
+                                        if ($(this).val() == actionList[j].ActionId) {
+                                            if (actionList[j].actionChecked == 1) {
+                                                this.checked = true;
+                                            } else {
+                                                this.checked = false;
+                                            }
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    }
+                }
+            })
+            $('#ShowActionEdit').modal();
+        }
+        //选中栏目下所有子栏目
+        function selectMenu(obj) {
+
+            if ($(obj).is(":checked")) {//如果选中
+                //设置所有子栏目为选中状态，并赋值
+                $(obj).parent().next().find("input[type=checkbox]").each(function () {
+                    this.checked = true;
+                });
+            }
+            else {//如果没有选中
+                ////设置所有子栏目为未选中状态
+                $(obj).parent().next().find("input[type=checkbox]").each(function () {
+                    this.checked = false;
+                });
+            }
+        }
+        //单选
+        function selectSign(obj) {
+            if ($(obj).is(":checked")) {//如果选中
+                $(obj).parent().prev().find("input[type=checkbox]").each(function () {
+                    this.checked = true;
+                });
+
+            }
+            else {//如果未选中
+                //设置父栏目为未选中状态
+                var parentChecked = false;
+                $(obj).parent().find("input[type=checkbox]").each(function () {
+                    if (this.checked) {
+                        parentChecked = true;
+                    }
+                })
+                $(obj).parent().prev().find("input[type=checkbox]").each(function () {
+                    this.checked = parentChecked;
+                });
+            }
+        }
+        //全选
+        function selectAll(obj) {
+            if ($(obj).is(":checked")) {//如果选中
+                $(".com").find("input[type=checkbox]").each(function () {
+                    this.checked = true;
+                });
+            }
+            else {
+                $(".com").find("input[type=checkbox]").each(function () {
+                    this.checked = false;
+                });
+            }
+        }
+
+        $("#EditRoleActionForm").submit(function () {
+            var actionJson = "";
+            $(".competence-t").each(function () {
+                var checkedValue = "";
+                $(this).find("input[type=checkbox]").each(function () {
+                    checkedValue += '{';
+                    checkedValue += '\"PageId\"';
+                    checkedValue += ':';
+                    checkedValue += $(this).val();
+                    checkedValue += ',';
+                    checkedValue += '\"ActionList\"';
+                    checkedValue += ':';
+                    checkedValue += '[';
+                    var actionValue = "";
+                    $(this).parent().next().find("input[type=checkbox]").each(function () {
+                        actionValue += "{";
+                        actionValue += '\"ActionId\"';
+                        actionValue += ':';
+                        actionValue += $(this).val();
+                        actionValue += ",";
+                        actionValue += "\"actionChecked\"";
+                        actionValue += ':';
+                        if (this.checked) {
+                            actionValue += '1';
+                        } else {
+                            actionValue += '0';
+                        }
+                        actionValue += "}";
+                        actionValue += ",";
+                    })
+                    if (actionValue.trim() != "") {
+                        actionValue = actionValue.substr(0, actionValue.length - 1);
+                    }
+                    checkedValue += actionValue;
+                    checkedValue += ']';
+                    checkedValue += '}';
+                    checkedValue += ',';
+                })
+                actionJson += checkedValue;
+            })
+            if (actionJson.trim() != "") {
+                actionJson = actionJson.substr(0, actionJson.length - 1);
+            }
+            var resultJson = "[" + actionJson + "]"
+            $.ajax({
+                type: "post",
+                url: "/Admin/Admin/UpdatePageAction/" + $("#ActionEditId").val(),
+                data: resultJson,
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                    if (result.state == "success") {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                                $("#ActionEditId").val(0);
+                                $('#ShowActionEdit').modal('hide');
+                            },
+                            message: result.message
+                        });
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                    return false;
+                }
+            })
+            return false;
+        })
+    </script>
+}
+
+

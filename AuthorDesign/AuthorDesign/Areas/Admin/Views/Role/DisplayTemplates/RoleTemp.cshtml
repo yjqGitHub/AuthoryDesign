@@ -1,0 +1,74 @@
+﻿@model AuthorDesign.Web.Areas.Admin.Models.RoleModel
+
+<div class="main-content col-xs-8" style="margin-top: 70px; margin-left: 15%;">
+    <div class="page-content">
+        <div class="row">
+            <section>
+                <div class="page-header">
+                    <h1>
+                        角色管理
+                        <small>
+                            <i class="icon-double-angle-right"></i>
+                            <span id="ShowText">角色编辑</span>
+                        </small>
+                    </h1>
+                </div>
+                <div class="col-lg-10 col-lg-offset-2">
+                    <form id="AddRoleForm" class="form-horizontal">
+                        <fieldset>
+                            @Html.HiddenFor(m=>m.Id)
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">角色名称<span style="color:red;">*</span>:</label>
+                                <div class="col-lg-7" style="float:left;">
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.Name)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">角色简介:</label>
+                                <div class="col-lg-7">
+                                    @Html.TextBoxFor(m => m.Intro, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.Intro)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">排序数字:<span style="color:red;">*</span></label>
+                                <div class="col-lg-7">
+                                    @Html.TextBoxFor(m => m.OrderNum, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.OrderNum)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">角色状态</label>
+                                <div class="col-lg-7">
+                                    <label>
+                                        <input name="State" type="radio" class="ace" value="0" checked="checked" />
+                                        <span class="lbl">正常</span>
+                                    </label>
+                                    <label>
+                                        <input name="State" type="radio" class="ace" value="1" />
+                                        <span class="lbl">已删除</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <div class="col-lg-9 col-lg-offset-3">
+                                <button class="btn btn-primary UpdateRole" type="submit">
+                                    <i class="icon-ok bigger-110"></i>
+                                    保存
+                                </button>
+                                <button class="btn" type="reset" data-dismiss="modal">
+                                    <i class="icon-undo bigger-110"></i>
+                                    取消
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            <!-- /.row -->
+        </div>
+    </div>
+    <!-- /.page-content -->
+</div>

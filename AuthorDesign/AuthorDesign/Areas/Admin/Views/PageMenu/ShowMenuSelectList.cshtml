@@ -1,0 +1,14 @@
+﻿@{
+    Layout = null;
+}
+@model List<AuthorDesign.Model.PageMenu>
+@foreach (var item in Model.Where(m => m.PId == ViewBag.Pid)) {
+    int layer = ViewBag.Layer;
+    <option value="@item.Id">@Html.Raw(AuthorDesign.Web.App_Start.Common.PublicFunction.GetHtmlBS(layer)) @item.Name</option>
+            var childMenu = Model.Where(m => m.PId == item.Id);
+            layer = layer + 1;
+            if (childMenu.Count() > 0) {
+                @Html.Action("ShowMenuSelectList", "PageMenu", new { listPage = Model, pid = item.Id, layer = layer })
+            }
+            layer = layer - 1;
+}

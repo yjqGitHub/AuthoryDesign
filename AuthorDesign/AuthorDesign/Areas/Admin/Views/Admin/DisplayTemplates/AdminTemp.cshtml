@@ -1,0 +1,71 @@
+﻿@model AuthorDesign.Web.Areas.Admin.Models.AdminModel
+
+<div class="main-content col-xs-8" style="margin-top: 70px; margin-left: 15%;">
+    <div class="page-content">
+        <div class="row">
+            <section>
+                <div class="page-header">
+                    <h1>
+                        管理员管理
+                        <small>
+                            <i class="icon-double-angle-right"></i>
+                            <span id="ShowText">管理员编辑</span>
+                        </small>
+                    </h1>
+                </div>
+                <div class="col-lg-10 col-lg-offset-2">
+                    <form id="AddRoleForm" class="form-horizontal">
+                        <fieldset>
+                            @Html.HiddenFor(m => m.Id)
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">手机号码<span style="color:red;">*</span>:</label>
+                                <div class="col-lg-7" style="float:left;">
+                                    @Html.TextBoxFor(m => m.Mobile, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.Mobile)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">角色:</label>
+                                <div class="col-lg-7">
+                                    <select id="AuthoryId" name="AuthoryId">
+                                        @foreach (var item in ViewBag.RoleSelectItem) {
+                                            <option value="@item.Value">@item.Text</option>
+                                        }
+                                    </select>
+                                    @Html.ValidationMessageFor(m => m.AuthoryId)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">是否可登录</label>
+                                <div class="col-lg-7">
+                                    <label>
+                                        <input name="IsLogin" type="radio" class="ace" value="0" checked="checked" />
+                                        <span class="lbl">不可登录</span>
+                                    </label>
+                                    <label>
+                                        <input name="IsLogin" type="radio" class="ace" value="1" />
+                                        <span class="lbl">可登陆</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <div class="col-lg-9 col-lg-offset-3">
+                                <button class="btn btn-primary UpdateRole" type="submit">
+                                    <i class="icon-ok bigger-110"></i>
+                                    保存
+                                </button>
+                                <button class="btn" type="reset" data-dismiss="modal">
+                                    <i class="icon-undo bigger-110"></i>
+                                    取消
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            <!-- /.row -->
+        </div>
+    </div>
+    <!-- /.page-content -->
+</div>

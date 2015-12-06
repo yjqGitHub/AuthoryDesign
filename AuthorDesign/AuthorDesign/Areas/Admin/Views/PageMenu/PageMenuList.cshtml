@@ -1,0 +1,462 @@
+﻿@section Header{
+    <link href="/Content/assets/css/chosen.css" rel="stylesheet" />
+    <style type="text/css">
+        .chosen-container {
+            width: 180px;
+        }
+        /*分类树*/
+        #categoryTree {
+            padding-left: 15px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+            #categoryTree thead th {
+                background: #dbeffa;
+                font-weight: normal;
+                cursor: pointer;
+                padding: 4px 0;
+                padding-left: 10px;
+            }
+
+            #categoryTree table tbody th {
+                text-align: left;
+                font-weight: normal;
+            }
+
+                #categoryTree table tbody th span {
+                    display: inline-block;
+                    width: 16px;
+                    height: 16px;
+                    cursor: pointer;
+                    float: left;
+                }
+
+                    #categoryTree table tbody th span.open {
+                        background: url(/Content/Images/tree_open.gif) no-repeat center center;
+                    }
+
+                    #categoryTree table tbody th span.close {
+                        background: url(/Content/Images/tree_close.gif) no-repeat center center;
+                    }
+
+            #categoryTree tbody td, #categoryTree tbody th {
+                border-bottom: 1px solid #ececec;
+                padding: 4px 0;
+                padding-left: 10px;
+            }
+
+            #categoryTree table tbody tr {
+                display: table-row;
+            }
+
+                #categoryTree table tbody tr.tree1 {
+                    display: table-row;
+                }
+    </style>
+}
+@{
+    //加载页面列表
+    var result = AuthorDesign.Web.App_Start.Common.EnterRepository.GetRepositoryEnter().GetPageMenuRepository.LoadEntities().OrderBy(m => m.OrderNum).ToList();
+    //加载按钮列表
+    var actionList = AuthorDesign.Web.App_Start.Common.AdminMenuHelper.LoadActionCodeList();
+}
+
+
+<div class="main-content">
+    <div class="breadcrumbs" id="breadcrumbs">
+        <script type="text/javascript">
+            try { ace.settings.check('breadcrumbs', 'fixed') } catch (e) { }
+        </script>
+
+        <ul class="breadcrumb">
+            <li>
+                <i class="icon-home home-icon"></i>
+                <a href="/Admin/Home">首页</a>
+            </li>
+            <li>
+                <a href="/Admin/PageMenu/PageMenuList">页面列表</a>
+            </li>
+            <li class="active">页面列表</li>
+        </ul><!-- .breadcrumb -->
+        <!-- #nav-search -->
+    </div>
+    <div class="page-content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="col-sm-12">
+                    <div class="widget-header header-color-blue2">
+                        <h4 class="lighter smaller">页面列表</h4>
+                    </div>
+                    <div class="widget-body">
+
+                        <div class="widget-main">
+                            <label class="AddRole">
+                                <a id="AddNewRole" class="btn btn-xs btn-primary" data-toggle="modal" href="" onclick="showAddNewAdmin()" title="添加新页面">
+                                    <i class="icon-plus-sign bigger-130"></i>
+                                    添加新页面
+                                </a>
+                            </label>
+                            <div class="table-responsive">
+                                <div class="table_top"></div>
+                                <div id="categoryTree">
+                                    <table width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th align="left">页面名称</th>
+                                                <th width="100" align="center">图标</th>
+                                                <th width="100" align="center">是否显示</th>
+                                                <th width="50" align="center">排序</th>
+                                                <th width="250" align="center">管理操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @Html.Action("ShowMenuList", "PageMenu", new { listPage = result, pid = 0, layer = 0 })
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="table_bottom"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ShowAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    @RenderPage("/Areas/Admin/Views/PageMenu/DisplayTemplates/PageMenuTemp.cshtml", new { ItemList = result })
+</div>
+<div class="modal fade" id="ShowAction" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="main-content col-xs-8" style="margin-top: 70px; margin-left: 15%;">
+        <div class="page-content">
+            <div class="row">
+                <section>
+                    <div class="page-header">
+                        <h1>
+                            页面管理
+                            <small>
+                                <i class="icon-double-angle-right"></i>
+                                <span id="ShowText">页面按钮编辑</span>
+                            </small>
+                        </h1>
+                    </div>
+                    <div class="col-lg-10 col-lg-offset-2">
+                        <form id="AddRole111Form" class="form-horizontal">
+                            <input type="hidden" value="0" id="UpdateActionId" />
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-lg-3 control-label">请选择页面按钮:</label>
+                                    <div class="col-lg-7" id="ActionListIdSelect">
+                                        <select multiple="" class="chosen-select tag-input-style" id="ActionListId" name="ActionListId" data-placeholder="请选择所页面按钮">
+                                            @foreach (var item in actionList) {
+                                                <option value=@item.Id>@item.Name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="form-group">
+                                <div class="col-lg-9 col-lg-offset-3">
+                                    <button class="btn btn-primary UpdateRole" type="button" onclick="UpdateActionSubmit()">
+                                        <i class="icon-ok bigger-110"></i>
+                                        确定
+                                    </button>
+                                    <button class="btn" type="reset" data-dismiss="modal">
+                                        <i class="icon-undo bigger-110"></i>
+                                        取消
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                <!-- /.row -->
+            </div>
+        </div>
+        <!-- /.page-content -->
+    </div>
+</div>
+@section Script{
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script src="/Content/assets/js/bootbox.min.js"></script>
+    <script src="~/Content/assets/js/chosen.jquery.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#PId").chosen();
+            $("#ActionListId").chosen();
+            $(".chosen-container").css("width", "180px");
+        });
+        function showAddNewAdmin() {
+            $("#Id").val(0);
+            $('#ShowAdd').modal();
+        }
+        //分类树展开/关闭
+        function categoryTree(obj, layer) {
+            var state = $(obj).attr("class");
+            if (state == "open") {
+                $(obj).parent().parent().nextAll().each(function (index) {
+                    var flag = parseInt($(this).attr("layer")) - layer;
+                    if (flag == 1) {
+                        $(this).show();
+                    }
+                    else if (flag == 0) {
+                        return false;
+                    }
+                })
+                if ($(obj).hasClass("open")) {
+                    $(obj).removeClass("open").addClass("close");
+                }
+            }
+            else if (state == "close") {
+                $(obj).parent().parent().nextAll().each(function (index) {
+                    if (parseInt($(this).attr("layer")) > layer) {
+                        $(this).hide();
+                        $(this).find("th span").each(function (i) {
+                            if ($(this).attr("class") != "" && $(this).attr("class") != undefined) {
+                                $(this).removeClass("close").addClass("open");
+                            }
+                        })
+                    }
+                    else {
+                        return false;
+                    }
+                })
+                if ($(obj).hasClass("close")) {
+                    $(obj).removeClass("close").addClass("open");
+                }
+            }
+        }
+        $("#categoryTree tbody tr").each(function () {
+            var layer = parseInt($(this).attr("layer")) + 1;
+            if ($(this).next("tr[layer='" + layer + "']") == undefined || $(this).next("tr[layer='" + layer + "']").length < 1) {
+                if ($(this).find(".close") != undefined && $(this).find(".close").length > 0) {
+                    $(this).find(".close").attr("class", $(this).find(".close").attr("class").replace("close", ""));
+                }
+            }
+        });
+
+        $("#AddRoleForm").submit(function () {
+            if ($("#AddRoleForm").valid()) {
+                var url = "/Admin/PageMenu/AddPageMenu";
+                if ($("#Id").val() > 0) {
+                    url = "/Admin/PageMenu/UpdatePageMenu";
+                }
+                $.ajax({
+                    type: "post",
+                    data: $("#AddRoleForm").serialize(),
+                    url: url,
+                    success: function (result) {
+                        if (result.state == "success") {
+                            $('#ShowAdd').modal('hide');//关闭模态框
+                            document.getElementById("AddRoleForm").reset();//清空表单
+                            bootbox.alert({
+                                buttons: {
+                                    ok: {
+                                        label: '我知道了',
+                                        className: 'btn btn-primary'
+                                    }
+                                }, callback: function () {
+                                    location.href = location.href;
+                                },
+                                message: result.message
+                            });
+                        } else {
+                            bootbox.alert({
+                                buttons: {
+                                    ok: {
+                                        label: '我知道了',
+                                        className: 'btn btn-primary'
+                                    }
+                                }, callback: function () {
+                                },
+                                message: result.message
+                            });
+                        }
+                    }
+                })
+                return false;
+            }
+            else {
+                return false;
+            }
+        })
+
+        function UpdateObj(id) {
+            $.ajax({
+                type: "post",
+                data: { id: id },
+                url: "/Admin/PageMenu/GetPageMenuInfo",
+                success: function (result) {
+                    if (result.state == "success") {
+                        $("#Id").val(id);
+                        $("#Name").val(result.result.Name);
+                        $("#PageUrl").val(result.result.PageUrl);
+                        $("#OrderNum").val(result.result.OrderNum);
+                        $("#Ico").val(result.result.Ico);
+                        if (result.result.IsShow == 1) {
+                            $("input[name='IsShow']").eq(0).removeAttr("checked");
+                            $("input[name='IsShow']").eq(1).attr("checked", "checked");
+                        }
+                        else {
+                            $("input[name='IsShow']").eq(0).attr("checked", "checked");
+                            $("input[name='IsShow']").eq(1).removeAttr("checked");
+                        }
+                        $("#PId option[value='" + result.result.PId + "']").attr("selected", "selected");
+                        $("#PidSelect").html($("#PId"));
+                        $("#PId").chosen();;
+                        $(".chosen-container").css("width", "180px");
+                        $('#ShowAdd').modal();
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+
+        function DeleteObj(id) {
+            bootbox.confirm({
+                buttons: {
+                    confirm: {
+                        label: '确定',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: '取消',
+                        className: 'btn-default'
+                    }
+                },
+                message: "确定要彻底删除页面吗？",
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: "post",
+                            data: { id: id },
+                            url: "/Admin/PageMenu/DeletePageMenu",
+                            success: function (result) {
+                                if (result.state == "success") {
+                                    bootbox.alert({
+                                        buttons: {
+                                            ok: {
+                                                label: '我知道了',
+                                                className: 'btn btn-primary'
+                                            }
+                                        }, callback: function () {
+                                            location.href = location.href;
+                                        },
+                                        message: result.message
+                                    });
+                                } else {
+                                    bootbox.alert({
+                                        buttons: {
+                                            ok: {
+                                                label: '我知道了',
+                                                className: 'btn btn-primary'
+                                            }
+                                        }, callback: function () {
+                                        },
+                                        message: result.message
+                                    });
+                                }
+                            }
+                        })
+                    }
+                }
+            });
+        }
+
+        function UpdateAction(id) {
+            $("#UpdateActionId").val(id);
+            $.ajax({
+                url: "/Admin/PageMenu/GetAction",
+                type: "post",
+                data: {id:id},
+                success: function (result) {
+                    if (result.state == "success") {
+                        $("#ActionListId option[selected='selected']").each(function () {
+                            $(this).attr("selected", false);
+                        })
+                        if (result.actionList != null && result.actionList != "") {
+                            var stringId = result.actionList.split(',');
+                            for (var i = 0; i < stringId.length; i++) {
+                                $("#ActionListId option[value='" + stringId[i] + "']").attr("selected", "selected");
+                            }
+                        }
+                        $("#ActionListIdSelect").html($("#ActionListId"));
+                        $("#ActionListId").chosen();;
+                        $(".chosen-container").css("width", "180px");
+                        $('#ShowAction').modal();
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+        function UpdateActionSubmit() {
+            var listId = $("#ActionListId").val();
+            var ActionListId = "";
+            if (listId != null) {
+                for (var i = 0; i < listId.length; i++) {
+                    if (ActionListId == "") {
+                        ActionListId += listId[i];
+                    } else {
+                        ActionListId +=","+ listId[i];
+                    }
+                }
+            }
+            $.ajax({
+                type: "post",
+                url: "/Admin/PageMenu/UpdateAction",
+                data: { id: $("#UpdateActionId").val(), ActionListId: ActionListId },
+                success: function (result) {
+                    $('#ShowAction').modal('hide');//关闭模态框
+                    if (result.state == "success") {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                                
+                            },
+                            message: result.message
+                        });
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+    </script>
+}
+

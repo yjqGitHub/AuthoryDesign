@@ -1,0 +1,38 @@
+﻿@using System.Web.Script.Serialization;
+
+@{
+    Layout = null;
+    //按钮列表
+    List<AuthorDesign.Model.PageAction> actionList = PageData["ActionList"] as List<AuthorDesign.Model.PageAction>;
+
+    IEnumerable<AuthorDesign.Model.PageMenuAction> pageMenuList = PageData["PageMenuList"] as IEnumerable<AuthorDesign.Model.PageMenuAction>;
+    int Pid = (int)PageData["Pid"];
+    JavaScriptSerializer serializer = new JavaScriptSerializer();
+}
+@if (pageMenuList != null && pageMenuList.Count() > 0) {
+    foreach (var item in pageMenuList.Where(m => m.PId == Pid)) {
+        List<AuthorDesign.Web.Areas.Admin.Models.RolePageActionModel> actionListModel = new List<AuthorDesign.Web.Areas.Admin.Models.RolePageActionModel>();
+        actionListModel=serializer.Deserialize<List<AuthorDesign.Web.Areas.Admin.Models.RolePageActionModel>>(item.ActionList);
+        string[] ss = string.IsNullOrEmpty(item.ActionList) ? new string[] { } : item.ActionList.Split(',');
+
+        <div class="competence">
+            <div class="competence-t">
+                <input type="checkbox" value="@item.Id" onclick="selectMenu(this)"> @item.Name
+            </div>
+            <div class="competence-b">
+                @foreach (var actionItem in actionList) {
+                    foreach (var itemActionListModel in actionListModel) {
+                        if (itemActionListModel.ActionId == actionItem.Id && itemActionListModel.actionChecked == 1) {
+                            <input type="checkbox" value="@actionItem.Id" data-actionlevel="@actionItem.ActionLevel" onclick="selectSign(this)"> @actionItem.Name
+                        }
+                    }
+                }
+            </div>
+        </div>
+                var childMenu = pageMenuList.Where(m => m.PId == item.Id);
+                if (childMenu.Count() > 0) {
+                    @RenderPage("/Areas/Admin/Views/Admin/DisplayTemplates/AdminActionTemp.cshtml", new { ActionList = actionList, PageMenuList = childMenu, Pid = item.Id })
+                }
+    }
+}
+

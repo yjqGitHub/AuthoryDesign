@@ -1,0 +1,342 @@
+﻿@section Header{
+    <style type="text/css">
+        /*加载动态图片*/
+        .dataTables_processing {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 40px;
+            margin-left: -50%;
+            margin-top: -25px;
+            padding-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            /*background-color: white;*/
+        }
+    </style>
+}
+
+<div class="main-content">
+    <div class="breadcrumbs" id="breadcrumbs">
+        <script type="text/javascript">
+            try { ace.settings.check('breadcrumbs', 'fixed') } catch (e) { }
+        </script>
+
+        <ul class="breadcrumb">
+            <li>
+                <i class="icon-home home-icon"></i>
+                <a href="/Admin/Home">首页</a>
+            </li>
+            <li>
+                <a href="/Admin/PageAction/PageActionList">页面按钮列表</a>
+            </li>
+            <li class="active">页面按钮列表</li>
+        </ul><!-- .breadcrumb -->
+        <!-- #nav-search -->
+    </div>
+    <div class="page-content">
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="table-header">
+                            页面按钮列表查看
+                        </div>
+                        <div class="hidden" id="hidden_filter">
+                            @* 把需要搜索的条件放到hidden里面，在table格式化完成的时候直接调用$.html()赋值，免去了在js拼接标签的麻烦 *@
+                            <div style="float:left;">
+                                <label class="AddRole">
+                                    <a id="AddNewButton" class="btn btn-xs btn-primary" data-toggle="modal" href="" onclick="showAddNewAdmin()" title="添加新按钮">
+                                        <i class="icon-plus-sign bigger-130"></i>
+                                        添加新按钮
+                                    </a>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="table-responsive dataTables_wrapper">
+                            <table id="sample-table-2" class="table table-striped table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th class="center sorting_disabled" role="columnheader" rowspan="1" colspan="1" aria-label="" style="width: 58px;">
+                                            <label>
+                                                <input type="checkbox" class="ace">
+                                                <span class="lbl"></span>
+                                            </label>
+                                        </th>
+                                        <th>动作名称</th>
+                                        <th>动作代码</th>
+                                        <th>是否显示</th>
+                                        <th>动作等级</th>
+                                        <th style="width: 120px;">
+                                            操作
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- PAGE CONTENT ENDS -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.page-content -->
+</div>
+<div class="modal fade" id="ShowAdd" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    @RenderPage("/Areas/Admin/Views/PageAction/DisplayTemplates/PageAction.cshtml")
+</div>
+@section script{
+    <script src="/Content/assets/js/jquery.dataTables.min.js"></script>
+    <script src="/Content/assets/js/jquery.dataTables.bootstrap.js"></script>
+    <script src="/Content/assets/js/bootbox.min.js"></script>
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+
+    <script type="text/javascript">
+        var isSearch = false;
+        $(function () {
+            var objTable = $("#sample-table-2").dataTable({
+                fnDrawCallback: function () {
+                    OperationEdit();
+                },
+                aoColumns: [
+                    { "sClass": "center", "mDataProp": "Id", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "Name", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "ActionCode", "bSortable": false },
+                    { "sClass": "center", "mDataProp": "IsShow", "bSortable": false },
+                    { "mDataProp": "ActionLevel", "sClass": "center", "bSortable": true, "asSorting": ["asc", "desc"] },
+                    {
+                        "sClass": "center",
+                        "mDataProp": "Id",
+                        "bSortable": false
+                    }
+                ],
+                "bServerSide": true,//分页，取数据等等的都放到服务端去
+                "bProcessing": true,//载入数据的时候是否显示“载入中”
+                "aLengthMenu": [30, 50, 100],
+                "bLengthChange": true, //改变每页显示数据数量
+                //"bFilter": false, //过滤功能
+                "iDisplayStart": 0,
+                "iDisplayLength": 30,//首次加载的数据条数
+                "bStorable": true,//排序操作在服务端进行，所以可以关了。
+                "sAjaxSource": "/Admin/PageAction/PageActionList",
+                "fnServerParams": function (aoData, bStorable) {
+                },
+                /*如果加上下面这段内容，则使用post方式传递数据*/
+                "fnServerData": function (sSource, aoData, fnCallback, bStorable) {
+                    var paramList = {
+                        "sEcho": 0,
+                        "iDisplayLength": 0,
+                        "iDisplayStart": 0,
+                        "isDesc": bStorable.aaSorting[0][1] == "desc" ? true : false
+                    };
+                    if (bStorable.aaSorting[0][0] == 0) {
+                        paramList.isDesc = true;
+                    }
+                    for (var i = 0; i < aoData.length; i++) {
+                        if (aoData[i].name == "iDisplayStart") {
+                            paramList.iDisplayStart = aoData[i].value;
+                        } else if (aoData[i].name == "iDisplayLength") {
+                            paramList.iDisplayLength = aoData[i].value;
+                        } else if (aoData[i].name == "sEcho") {
+                            paramList.sEcho = aoData[i].value;
+                        }
+                    }
+                    $.ajax({
+                        "dataType": 'json',
+                        "type": "POST",
+                        "url": sSource,
+                        "data": paramList,
+                        "success": function (resp) {
+                            fnCallback(resp); //服务器端返回的对象的returnObject部分是要求的格式
+                        }
+                    });
+                },
+                "oLanguage": {
+                    "sSearch": "搜索",
+                    "sLengthMenu": "每页显示 _MENU_ 条记录",
+                    "sZeroRecords": "抱歉， 没有找到",
+                    "sInfo": "从 _START_ 到 _END_ 共 _TOTAL_ 条数据",
+                    "sInfoEmpty": "没有数据",
+                    "sInfoFiltered": "(从 _MAX_ 条数据中检索)",
+                    "oPaginate": {
+                        "sFirst": "首页",
+                        "sPrevious": "前一页",
+                        "sNext": "后一页",
+                        "sLast": "尾页"
+                    },
+                    "sZeroRecords": "没有检索到数据",
+                    "sProcessing": "<img src='/Content/assets/images/loading.gif' />"
+                },
+                "fnRowCallback": function (nRow, aData, iDisplayIndex) {  /* 用来改写指定行的样式 */
+                    $('td:eq(0)', nRow).html("<label><input type=\"checkbox\" class=\"ace\" value=\"" + aData.Id + "\"><span class=\"lbl\"></span></label>");
+                    
+                    var html = "<div class=\"visible-md visible-lg hidden-sm hidden-xs action-buttons\">";
+                    html += "<a class=\"green LookRole\" href=\"javascript:UpdateObj('" + aData.Id + "')\" title=\"编辑\"><i class=\"icon-pencil bigger-130\"></i></a>";//编辑
+                    if (aData.IsShow == 0) {
+                        html += "<a class=\"green UpdateRole\" href=\"javascript:CanShow('" + aData.Id + "',1)\" title=\"设置显示\"><i class=\"icon-ok bigger-130\"></i></a>";
+                        $('td:eq(3)', nRow).html("<i class=\"icon-remove red bigger-120\"></i>");
+                    }
+                    else {
+                        html += "<a class=\"red UpdateRole\" href=\"javascript:CanShow('" + aData.Id + "',0)\" title=\"设置不显示\"><i class=\"icon-remove bigger-130\"></i></a>";//删除
+                        $('td:eq(3)', nRow).html("<i class=\"icon-ok green bigger-120\"></i>");
+                    }
+                    html += "</div>";
+                    $('td:eq(5)', nRow).html(html);
+                    return nRow;
+                }
+            });
+            //下面的代码主要是将下拉框的位置已到右边去
+            $("#sample-table-2_length").parents().first().removeClass("col-sm-6").addClass("col-sm-3");
+            $("#sample-table-2_length").parents().first().css("float", "right");
+            $("#sample-table-2_filter").parents().first().removeClass("col-sm-6").addClass("col-sm-8");
+            $("#sample-table-2_filter").parents().first().css("float", "left");
+            $("#sample-table-2_length").css("float", "right");
+            $("#sample-table-2_filter").html($("#hidden_filter").html());
+            $("#hidden_filter").remove();
+        })
+
+        function showAddNewAdmin() {
+            $("#Id").val(0);
+            $('#ShowAdd').modal();
+        }
+        function UpdateObj(id) {
+            $.ajax({
+                type: "post",
+                data: { id: id },
+                url: "/Admin/PageAction/GetPageActionInfo",
+                success: function (result) {
+                    if (result.state == "success") {
+                        $("#Id").val(id);
+                        $("#Name").val(result.result.Name);
+                        $("#ActionCode").val(result.result.ActionCode);
+                        $("#ActionLevel").val(result.result.ActionLevel);
+                        if (result.result.IsShow == 0) {
+                            $("input[name='IsShow']").eq(0).removeAttr("checked");
+                            $("input[name='IsShow']").eq(1).attr("checked", "checked");
+                        }
+                        else {
+                            $("input[name='IsShow']").eq(0).attr("checked", "checked");
+                            $("input[name='IsShow']").eq(1).removeAttr("checked");
+                        }
+                        $('#ShowAdd').modal();
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+        $("#AddRoleForm").submit(function () {
+            if ($("#AddRoleForm").valid()) {
+                var url = "/Admin/PageAction/AddPageAction";
+                if ($("#Id").val() > 0) {
+                    url = "/Admin/PageAction/UpdatePageAction";
+                }
+                $.ajax({
+                    type: "post",
+                    data: $("#AddRoleForm").serialize(),
+                    url: url,
+                    success: function (result) {
+                        if (result.state == "success") {
+                            $('#ShowAdd').modal('hide');//关闭模态框
+                            document.getElementById("AddRoleForm").reset();//清空表单
+                            bootbox.alert({
+                                buttons: {
+                                    ok: {
+                                        label: '我知道了',
+                                        className: 'btn btn-primary'
+                                    }
+                                }, callback: function () {
+                                    $("#sample-table-2").dataTable().fnDraw();//点搜索重新绘制table。
+                                },
+                                message: result.message
+                            });
+                        } else {
+                            bootbox.alert({
+                                buttons: {
+                                    ok: {
+                                        label: '我知道了',
+                                        className: 'btn btn-primary'
+                                    }
+                                }, callback: function () {
+                                },
+                                message: result.message
+                            });
+                        }
+                    }
+                })
+                return false;
+            }
+            else {
+                return false;
+            }
+        })
+
+        function CanShow(id, state) {
+            bootbox.confirm({
+                buttons: {
+                    confirm: {
+                        label: '确定',
+                        className: 'btn-primary'
+                    },
+                    cancel: {
+                        label: '取消',
+                        className: 'btn-default'
+                    }
+                },
+                message: state == 0 ? "确定该按钮不显示吗" : "确定该按钮显示吗",
+                callback: function (result) {
+                    if (result) {
+                        UpdateState(id, state)
+                    }
+                }
+            });
+        }
+        function UpdateState(id, state) {
+            $.ajax({
+                type: "post",
+                data: { id: id, state: state },
+                url: "/Admin/PageAction/UpdateState",
+                success: function (result) {
+                    if (result.state == "success") {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                                $("#sample-table-2").dataTable().fnDraw();//点搜索重新绘制table。
+                            },
+                            message: result.message
+                        });
+                    } else {
+                        bootbox.alert({
+                            buttons: {
+                                ok: {
+                                    label: '我知道了',
+                                    className: 'btn btn-primary'
+                                }
+                            }, callback: function () {
+                            },
+                            message: result.message
+                        });
+                    }
+                }
+            })
+        }
+    </script>
+}
+
+

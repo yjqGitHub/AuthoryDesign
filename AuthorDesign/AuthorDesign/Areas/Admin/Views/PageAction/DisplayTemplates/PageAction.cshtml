@@ -1,0 +1,74 @@
+﻿@model AuthorDesign.Web.Areas.Admin.Models.PageActionModel
+
+<div class="main-content col-xs-8" style="margin-top: 70px; margin-left: 15%;">
+    <div class="page-content">
+        <div class="row">
+            <section>
+                <div class="page-header">
+                    <h1>
+                        管理
+                        <small>
+                            <i class="icon-double-angle-right"></i>
+                            <span id="ShowText">页面按钮编辑</span>
+                        </small>
+                    </h1>
+                </div>
+                <div class="col-lg-10 col-lg-offset-2">
+                    <form id="AddRoleForm" class="form-horizontal">
+                        <fieldset>
+                            @Html.HiddenFor(m => m.Id)
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">按钮名称<span style="color:red;">*</span>:</label>
+                                <div class="col-lg-7" style="float:left;">
+                                    @Html.TextBoxFor(m => m.Name, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.Name)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">按钮代码<span style="color:red;">*</span>:</label>
+                                <div class="col-lg-7">
+                                    @Html.TextBoxFor(m => m.ActionCode, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.ActionCode)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">动作等级:</label>
+                                <div class="col-lg-7">
+                                    @Html.TextBoxFor(m => m.ActionLevel, new { @class = "col-sm-8" })
+                                    @Html.ValidationMessageFor(m => m.ActionLevel)
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">是否显示</label>
+                                <div class="col-lg-7">
+                                    <label>
+                                        <input name="IsShow" type="radio" class="ace" value="1" checked="checked" />
+                                        <span class="lbl">显示</span>
+                                    </label>
+                                    <label>
+                                        <input name="IsShow" type="radio" class="ace" value="0" />
+                                        <span class="lbl">不显示</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <div class="form-group">
+                            <div class="col-lg-9 col-lg-offset-3">
+                                <button class="btn btn-primary UpdateRole" type="submit">
+                                    <i class="icon-ok bigger-110"></i>
+                                    保存
+                                </button>
+                                <button class="btn" type="reset" data-dismiss="modal">
+                                    <i class="icon-undo bigger-110"></i>
+                                    取消
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            <!-- /.row -->
+        </div>
+    </div>
+    <!-- /.page-content -->
+</div>
