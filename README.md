@@ -1,2 +1,2 @@
-# AuthoryDesign
-AuthoryDesign
+# AuthorDesign
+权限设置
