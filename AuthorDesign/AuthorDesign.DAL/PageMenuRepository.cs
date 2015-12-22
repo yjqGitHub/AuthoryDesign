@@ -37,7 +37,7 @@ namespace AuthorDesign.DAL {
                          from a in a_into.DefaultIfEmpty()
                          join b in db.Set<AuthoryToPage>() on new { PageId = p.Id } equals new { PageId = b.PageId } into b_into
                          from b in b_into
-                         where b.IsShow == 1
+                         where b.IsShow == 1&&b.AuthoryId==roleId
                          orderby p.PId, p.OrderNum
                          select new {
                              p.Id,
