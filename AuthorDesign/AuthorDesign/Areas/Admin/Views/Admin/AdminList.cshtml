@@ -131,7 +131,7 @@
     @RenderPage("/Areas/Admin/Views/Admin/DisplayTemplates/AdminTemp.cshtml", new { SelectItem = ViewBag.RoleSelectItem })
 </div>
 <div class="modal fade" id="ShowActionEdit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    @Html.Partial("DisplayTemplates/AdminActionList")
+    @*@Html.Partial("DisplayTemplates/AdminActionList")*@
 </div>
 @section script{
     <script src="/Content/assets/js/jquery.dataTables.min.js"></script>
@@ -503,39 +503,47 @@
 
         //角色与页面按钮编辑
         function UpdateAction(id) {
-            $("#ActionEditId").val(id);
             $.ajax({
-                type: "post",
-                url: "/Admin/Admin/AdminPageActionDesc",
-                data: { id: id },
+                type: "get",
+                url: "/Admin/Admin/AdminActionListPartial/" + id,
                 success: function (result) {
-                    var res = result.adminPageList;
-                    for (var i = 0; i < res.length; i++) {
-                        $(".competence-t").find("input[type=checkbox]").each(function () {
-                            if ($(this).val() == res[i].PageId) {
-                                if (res[i].IsShow == 1) {
-                                    this.checked = true;
-                                } else {
-                                    this.checked = false;
-                                }
-                                var actionList = eval('(' + res[i].ActionList + ')')
-                                $(this).parent().next().find("input[type=checkbox]").each(function () {
-                                    for (var j = 0; j < actionList.length; j++) {
-                                        if ($(this).val() == actionList[j].ActionId) {
-                                            if (actionList[j].actionChecked == 1) {
-                                                this.checked = true;
-                                            } else {
-                                                this.checked = false;
-                                            }
+                    $("#ShowActionEdit").html(result);
+                    $.ajax({
+                        type: "post",
+                        url: "/Admin/Admin/AdminPageActionDesc",
+                        data: { id: id },
+                        success: function (result) {
+                            var res = result.adminPageList;
+                            for (var i = 0; i < res.length; i++) {
+                                $(".competence-t").find("input[type=checkbox]").each(function () {
+                                    if ($(this).val() == res[i].PageId) {
+                                        if (res[i].IsShow == 1) {
+                                            this.checked = true;
+                                        } else {
+                                            this.checked = false;
                                         }
+                                        var actionList = eval('(' + res[i].ActionList + ')')
+                                        $(this).parent().next().find("input[type=checkbox]").each(function () {
+                                            for (var j = 0; j < actionList.length; j++) {
+                                                if ($(this).val() == actionList[j].ActionId) {
+                                                    if (actionList[j].actionChecked == 1) {
+                                                        this.checked = true;
+                                                    } else {
+                                                        this.checked = false;
+                                                    }
+                                                }
+                                            }
+                                        })
                                     }
                                 })
                             }
-                        })
-                    }
+                        }
+                    })
+                    $('#ShowActionEdit').modal();
                 }
             })
-            $('#ShowActionEdit').modal();
+            //$("#ActionEditId").val(id);
+
         }
         //选中栏目下所有子栏目
         function selectMenu(obj) {
