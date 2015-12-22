@@ -406,6 +406,7 @@
     <Content Include="Areas\Admin\Views\Admin\DisplayTemplates\AdminActionTemp.cshtml" />
     <Content Include="Areas\Admin\Views\Shared\LeftMenuTemp\LeftMenuPartail.cshtml" />
     <Content Include="Areas\Admin\Views\Home\NoAuthory.cshtml" />
+    <Content Include="Areas\Admin\Views\Admin\AdminActionListPartial.cshtml" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.8.2.js" />
     <Content Include="Scripts\jquery-1.8.2.min.js" />
