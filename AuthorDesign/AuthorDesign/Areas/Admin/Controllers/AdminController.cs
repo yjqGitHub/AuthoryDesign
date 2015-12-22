@@ -290,6 +290,15 @@ namespace AuthorDesign.Web.Areas.Admin.Controllers
                 return Json(new { state = "fail", message = "编辑管理员页面按钮失败" });
             }
         }
+
+        [HttpGet]
+        public ActionResult AdminActionListPartial(int id=0) {
+            var result = AuthorDesign.Web.App_Start.Common.EnterRepository.GetRepositoryEnter().GetAdminRepository.LoadEntities(m => m.Id == id).FirstOrDefault();
+
+            IEnumerable<AuthorDesign.Model.PageMenuAction> pageMenuList = AuthorDesign.Web.App_Start.Common.EnterRepository.GetRepositoryEnter().GetPageMenuRepository.GetAdminPageMenuList(result == null ? 0 : result.AuthoryId);
+            ViewBag.Id = id;
+            return PartialView(pageMenuList);
+        }
         #endregion
     }
 }
