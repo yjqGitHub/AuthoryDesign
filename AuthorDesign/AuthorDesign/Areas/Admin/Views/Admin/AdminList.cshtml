@@ -596,7 +596,7 @@
             }
         }
 
-        $("#EditRoleActionForm").submit(function () {
+        function SubmitActionList() {
             var actionJson = "";
             $(".competence-t").each(function () {
                 var checkedValue = "";
@@ -676,7 +676,10 @@
                 }
             })
             return false;
-        })
+        }
+        //$("#EditRoleActionForm").submit(function () {
+            
+        //})
     </script>
 }
 
